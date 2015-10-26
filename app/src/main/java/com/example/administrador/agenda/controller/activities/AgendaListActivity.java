@@ -3,18 +3,30 @@ package com.example.administrador.agenda.controller.activities;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.SpannableString;
+import android.text.style.ImageSpan;
 import android.view.ContextMenu;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.administrador.agenda.R;
@@ -22,6 +34,7 @@ import com.example.administrador.agenda.controller.adapters.AgendaAdapter;
 import com.example.administrador.agenda.model.entidade.Agenda;
 import com.example.administrador.agenda.model.persistence.agenda.AgendaRepository;
 import com.example.administrador.agenda.model.services.AgendaBusinessService;
+import com.example.administrador.agenda.tabs.SlidingTabLayout;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +48,8 @@ public class AgendaListActivity extends AppCompatActivity{
     private ListView listViewAgenda;
     private Agenda selectAgenda;
     private Toolbar toolbar;
+    private SlidingTabLayout slidingTabLayout;
+    private ViewPager viewPager;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,7 +58,23 @@ public class AgendaListActivity extends AppCompatActivity{
         bindToolbar();
         bindAgendaList();
         bindFragment();
+        bindPager();
+        bindTabs();
 
+    }
+
+    private void bindPager() {
+        viewPager = (ViewPager) findViewById(R.id.pager);
+        viewPager.setAdapter(new MyPageAdapter(getSupportFragmentManager()));
+    }
+
+    private void bindTabs() {
+        slidingTabLayout = (SlidingTabLayout) findViewById(R.id.tabs);
+        slidingTabLayout.setDistributeEvenly(true);
+        slidingTabLayout.setCustomTabView(R.layout.custom_tab_view, R.id.tabText);
+        slidingTabLayout.setBackgroundColor(getResources().getColor(R.color.primaryColor));
+        slidingTabLayout.setSelectedIndicatorColors(getResources().getColor(R.color.colorAccent));
+        slidingTabLayout.setViewPager(viewPager);
     }
 
     private void bindFragment() {
@@ -177,5 +208,62 @@ public class AgendaListActivity extends AppCompatActivity{
                 .show();
     }
 
+
+    class MyPageAdapter extends FragmentPagerAdapter{
+        String[] tabText = getResources().getStringArray(R.array.tabs);
+        int icons[] = {R.drawable.ic_action_shopping_cart, R.drawable.ic_communication_contacts, R.drawable.ic_device_settings_system_daydream};
+
+        public MyPageAdapter(FragmentManager fm) {
+            super(fm);
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            MyFragment myFragment = MyFragment.getInstance(position);
+
+            return myFragment;
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            Drawable drawable = getResources().getDrawable(icons[position]);
+            drawable.setBounds(0, 0, 100, 100);
+            ImageSpan imageSpan = new ImageSpan(drawable);
+            SpannableString spannableString = new SpannableString(" ");
+            spannableString.setSpan(imageSpan, 0, spannableString.length(), spannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+            return spannableString;
+        }
+
+        @Override
+        public int getCount() {
+            return 3;
+        }
+    }
+
+    public static class MyFragment extends Fragment{
+        TextView textView;
+
+        public static MyFragment getInstance(int position){
+            MyFragment myFragment = new MyFragment();
+            Bundle bundle = new Bundle();
+            bundle.putInt("position", position);
+            myFragment.setArguments(bundle);
+            return myFragment;
+        }
+
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+            View layout = inflater.inflate(R.layout.fragment_my, container, false);
+            Bundle bundle = getArguments();
+            textView = (TextView) layout.findViewById(R.id.textView_tabs_fragment_my);
+
+            if (bundle != null) {
+                textView.setText("The Number Of Tab is " + bundle.getInt("position"));
+            }
+
+            return layout;
+        }
+    }
 
 }

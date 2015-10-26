@@ -6,6 +6,7 @@
         <item name="android:colorAccent">@color/colorAccent</item>
         <item name="android:windowTranslucentStatus">true</item>
         <item name="android:colorControlHighlight">@color/colorHighLight</item>
+        <item name="android:windowBackground">@android:color/white</item>
 
     </style>
 

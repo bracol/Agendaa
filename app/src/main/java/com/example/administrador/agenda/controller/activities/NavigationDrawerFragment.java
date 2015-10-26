@@ -11,6 +11,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -142,9 +143,10 @@ public class NavigationDrawerFragment extends Fragment {
 
                 @Override
                 public void onLongPress(MotionEvent e) {
+
                     View child = rv.findChildViewUnder(e.getX(), e.getY());
                     if(child != null && clickListener != null){
-                        clickListener.onLongClick(child, rv.getChildPosition(child));
+                        clickListener.onLongClick(child, rv.getChildAdapterPosition(child));
                     }
 
                     super.onLongPress(e);
@@ -157,7 +159,7 @@ public class NavigationDrawerFragment extends Fragment {
         public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
             View child = rv.findChildViewUnder(e.getX(), e.getY());
             if(child != null && clickListener != null && gestureDetector.onTouchEvent(e)){
-                clickListener.onClick(child, rv.getChildPosition(child));
+                clickListener.onClick(child, rv.getChildAdapterPosition(child));
             }
             return false;
         }
